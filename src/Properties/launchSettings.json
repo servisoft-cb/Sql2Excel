@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Sql2Excel": {
+      "commandName": "Project",
+      "commandLineArgs": "\"SELECT * FROM PRODUTO\"\r\ntesteProd.xlsx"
+    }
+  }
+}

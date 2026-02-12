@@ -1,0 +1,8 @@
+{
+  "DatabaseOptions": {
+    "ConnectionString": "User=SYSDBA;Password=masterkey;Database=localhost/3050:C:\\database.FDB",
+    "Driver": 1
+  },
+  "DestinationPath": "C:\\Users\\User\\Desktop",
+  "WorkbookTheme":  1
+}
