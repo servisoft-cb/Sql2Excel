@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using Sql2Excel.Model.Enums;
+using System.Text.Json.Serialization;
 
 namespace Sql2Excel.Model.Entities;
 
@@ -7,7 +8,8 @@ public class ExecutionParameters
 {
     public DatabaseOptions DatabaseOptions { get; set; } = default!;
     public string DestinationPath { get; set; } = string.Empty;
-    private int WorkbookTheme { get; set; } = 1;
+    [JsonInclude]
+    public int WorkbookTheme { get; internal set; }
 
     public ExecutionParameters() { }
 
@@ -34,7 +36,7 @@ public class ExecutionParameters
             _ => XLTableTheme.TableStyleMedium1
         };
     }
-    
+
     public DatabaseDriver GetDatabaseDriver()
     {
         return DatabaseOptions.Driver;
