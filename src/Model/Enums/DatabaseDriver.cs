@@ -3,4 +3,5 @@
 public enum DatabaseDriver
 {
     FIREBIRD = 1,
+    POSTGRES = 2,
 }
