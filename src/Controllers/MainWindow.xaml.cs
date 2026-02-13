@@ -42,8 +42,12 @@ namespace Sql2Excel.Controllers
                 Application.Current.Shutdown();
             }
 
-            using var file = WorkbookService.GenerateXlsx(data, _parameters.GetWorkbookTheme());
-            WorkbookService.Persist(file, _parameters.DestinationPath, _filename);
+
+            await Task.Run((async () =>
+            {
+                using var file = WorkbookService.GenerateXlsx(data, _parameters.GetWorkbookTheme());
+                WorkbookService.Persist(file, _parameters.DestinationPath, _filename);
+            }));
 
             Application.Current.Shutdown();
         }
