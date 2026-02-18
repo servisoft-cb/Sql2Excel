@@ -1,10 +1,6 @@
-﻿using Sql2Excel.Controllers;
-using Sql2Excel.Model.Entities;
-using Sql2Excel.Model.Extensions;
-using Sql2Excel.Services;
+﻿using MailTool.Config;
+using Sql2Excel.Controllers;
 using Sql2Excel.Utils;
-using System.IO;
-using System.Text.Json;
 using System.Windows;
 
 namespace Sql2Excel
@@ -19,35 +15,26 @@ namespace Sql2Excel
 
             base.OnStartup(e);
 
-            if (e.Args.Length == 0) 
+            if (e.Args.Length == 0)
             {
                 NotificationUtil.ShowError("No arguments provided");
                 return;
             }
 
-            var parameters = await GetExecutionParams();
-            if (parameters is null)
+
+            var config = new ConfigLoader();
+            var parameters = config.GetExecutionParams();
+            parameters.DestinationPath = e.Args[0];
+            parameters.SqlFilePath = e.Args[1];
+
+            if (e.Args.Length == 3)
             {
-                Shutdown();
-                return;
+                parameters.XlsFilename = e.Args[2];
             }
+
             var main = new MainWindow(parameters, e);
 
             main.Show();
-        }
-
-        private async Task<ExecutionParameters?> GetExecutionParams()
-        {
-            if (!File.Exists(AppConsts.JSON_CONFIG_FILE))
-            {
-                NotificationUtil.ShowError("Config file not found");
-                return null;
-            }
-
-            using FileStream fs = File.OpenRead(AppConsts.JSON_CONFIG_FILE);
-            var context = await JsonSerializer.DeserializeAsync<ExecutionParameters>(fs);
-
-            return context!;
         }
     }
 

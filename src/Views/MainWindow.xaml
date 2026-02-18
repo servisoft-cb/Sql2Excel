@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Sql2Excel"
         mc:Ignorable="d"
-        Title="Sql2Excel" Height="160" Width="342">
+        Title="Gerador Excel" Height="160" Width="342">
     <Grid Margin="20">
         <StackPanel VerticalAlignment="Center">
             <TextBlock Name="txtStatus" Text="Processando dados, aguarde..." Margin="0,0,0,10" TextAlignment="Center"/>

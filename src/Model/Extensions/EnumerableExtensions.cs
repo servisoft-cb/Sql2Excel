@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 
 namespace Sql2Excel.Model.Extensions;
 
@@ -18,6 +15,12 @@ public static class EnumerableExtensions
 
         foreach (var kvp in firstRow)
         {
+
+            if (dataTable.Columns.Contains(kvp.Key))
+            {
+                continue;
+            }
+
             var columnType = kvp.Value?.GetType() ?? typeof(object);
             dataTable.Columns.Add(kvp.Key, columnType);
         }

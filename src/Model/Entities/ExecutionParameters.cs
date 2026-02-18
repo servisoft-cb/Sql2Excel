@@ -8,6 +8,8 @@ public class ExecutionParameters
 {
     public DatabaseOptions DatabaseOptions { get; set; } = default!;
     public string DestinationPath { get; set; } = string.Empty;
+    public string SqlFilePath { get; set; } = string.Empty;
+    public string? XlsFilename { get; set; } = string.Empty;
     [JsonInclude]
     public int WorkbookTheme { get; internal set; }
 

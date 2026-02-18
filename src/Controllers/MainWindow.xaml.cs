@@ -1,8 +1,8 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Sql2Excel.Model.Entities;
+﻿using Sql2Excel.Model.Entities;
 using Sql2Excel.Model.Extensions;
 using Sql2Excel.Services;
 using Sql2Excel.Utils;
+using System.IO;
 using System.Windows;
 
 namespace Sql2Excel.Controllers
@@ -14,18 +14,10 @@ namespace Sql2Excel.Controllers
     {
 
         private readonly ExecutionParameters _parameters;
-        private readonly string _sql;
-        private readonly string? _filename;
 
         public MainWindow(ExecutionParameters parameters, StartupEventArgs e)
         {
             _parameters = parameters;
-            _sql = e.Args[0];
-
-            if(e.Args.Length > 1)
-            {
-                _filename = e.Args[1];
-            }
 
             InitializeComponent();
 
@@ -34,7 +26,9 @@ namespace Sql2Excel.Controllers
 
         private async void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
-            var data = await GetData(_sql, _parameters);
+            var sql = await ReadSqlFromFile(_parameters.SqlFilePath);
+
+            var data = await GetData(sql, _parameters);
 
             if (!data.Any())
             {
@@ -46,13 +40,29 @@ namespace Sql2Excel.Controllers
             await Task.Run((async () =>
             {
                 using var file = WorkbookService.GenerateXlsx(data, _parameters.GetWorkbookTheme());
-                WorkbookService.Persist(file, _parameters.DestinationPath, _filename);
+                WorkbookService.Persist(file, _parameters.DestinationPath, _parameters.XlsFilename);
             }));
 
+            NotificationUtil.ShowInfo("Operação concluida");
             Application.Current.Shutdown();
         }
 
-        private async Task<IEnumerable<dynamic>> GetData(string sql, ExecutionParameters parameters)
+        private async Task<List<string>> ReadSqlFromFile(string sqlPath)
+        {
+            var completeName = $"{sqlPath}\\sqlRelatorio.txt";
+
+            if (!File.Exists(completeName))
+            {
+                NotificationUtil.ShowError("Arquivo com sql não encontrado");
+                Application.Current.Shutdown();
+            }
+
+            var sqlString = await File.ReadAllTextAsync(completeName);
+
+            return sqlString.CorrigirSqlParaFirebird().ToList();
+        }
+
+        private async Task<IEnumerable<dynamic>> GetData(List<string> sqlQueries, ExecutionParameters parameters)
         {
             var dbConnection = DatabaseService.GetDbConnection(parameters);
             if (dbConnection is null)
@@ -62,17 +72,26 @@ namespace Sql2Excel.Controllers
                 return [];
             }
 
-            if (!sql.IsValidSqlQuery())
+            // Valida todas as queries
+            foreach (var sql in sqlQueries)
             {
-                NotificationUtil.ShowError("Invalid SQL Statement");
-                Application.Current.Shutdown();
-                return [];
+                if (!sql.IsValidSqlQuery())
+                {
+                    NotificationUtil.ShowError("Invalid SQL Statement");
+                    Application.Current.Shutdown();
+                    return [];
+                }
             }
 
+            // Executa todas as queries e combina os resultados
+            var allResults = new List<dynamic>();
+            foreach (var sql in sqlQueries)
+            {
+                var resultSQL = await DatabaseService.QueryData(dbConnection, sql);
+                allResults.AddRange(resultSQL);
+            }
 
-            var resultSQL = await DatabaseService.QueryData(dbConnection, sql);
-
-            return resultSQL.ToList();
+            return allResults;
         }
     }
 }

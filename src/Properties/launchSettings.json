@@ -2,7 +2,7 @@
   "profiles": {
     "Sql2Excel": {
       "commandName": "Project",
-      "commandLineArgs": "\"select * from Produto\"\r\ntesteProd.xlsx"
+      "commandLineArgs": "\"D:\\Delphi7\\SSFacil\\EXE\\\\\" \r\n\"D:\\Delphi7\\SSFacil\\EXE\\\\\" \r\n\"FaturamentoDetalhado_2026_02.xlsx\""
     }
   }
 }
