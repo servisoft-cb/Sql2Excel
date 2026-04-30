@@ -26,25 +26,33 @@ namespace Sql2Excel.Controllers
 
         private async void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
-            var sql = await ReadSqlFromFile(_parameters.SqlFilePath);
-
-            var data = await GetData(sql, _parameters);
-
-            if (!data.Any())
+            try
             {
-                NotificationUtil.ShowError("No data found");
+                var sql = await ReadSqlFromFile(_parameters.SqlFilePath);
+
+                var data = await GetData(sql, _parameters);
+
+                if (!data.Any())
+                {
+                    NotificationUtil.ShowError("No data found");
+                    Application.Current.Shutdown();
+                    return;
+                }
+
+                await Task.Run((async () =>
+                {
+                    using var file = WorkbookService.GenerateXlsx(data, _parameters.GetWorkbookTheme());
+                    WorkbookService.Persist(file, _parameters.DestinationPath, _parameters.XlsFilename);
+                }));
+
+                NotificationUtil.ShowInfo("Operação concluida");
                 Application.Current.Shutdown();
             }
-
-
-            await Task.Run((async () =>
+            catch (Exception ex)
             {
-                using var file = WorkbookService.GenerateXlsx(data, _parameters.GetWorkbookTheme());
-                WorkbookService.Persist(file, _parameters.DestinationPath, _parameters.XlsFilename);
-            }));
-
-            NotificationUtil.ShowInfo("Operação concluida");
-            Application.Current.Shutdown();
+                NotificationUtil.ShowError($"Erro ao processar: {ex.Message}");
+                Application.Current.Shutdown();
+            }
         }
 
         private async Task<List<string>> ReadSqlFromFile(string sqlPath)
@@ -55,6 +63,7 @@ namespace Sql2Excel.Controllers
             {
                 NotificationUtil.ShowError("Arquivo com sql não encontrado");
                 Application.Current.Shutdown();
+                return [];
             }
 
             var sqlString = await File.ReadAllTextAsync(completeName);

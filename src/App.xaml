@@ -1,7 +1,8 @@
 ﻿<Application x:Class="Sql2Excel.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Sql2Excel">
+             xmlns:local="clr-namespace:Sql2Excel"
+             DispatcherUnhandledException="App_DispatcherUnhandledException">
     <Application.Resources>
          
     </Application.Resources>

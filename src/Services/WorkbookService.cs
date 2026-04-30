@@ -37,7 +37,14 @@ public static class WorkbookService
             return;
         }
 
-        workbook.SaveAs($"{outputPath}\\{filename}");
+        try
+        {
+            workbook.SaveAs($"{outputPath}\\{filename}");
+        }
+        catch (Exception ex)
+        {
+            NotificationUtil.ShowError($"Erro ao salvar arquivo: {ex.Message}");
+        }
     }
 
 

@@ -2,6 +2,7 @@
 using Sql2Excel.Controllers;
 using Sql2Excel.Utils;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Sql2Excel
 {
@@ -12,7 +13,6 @@ namespace Sql2Excel
     {
         protected override async void OnStartup(StartupEventArgs e)
         {
-
             base.OnStartup(e);
 
             if (e.Args.Length == 0)
@@ -21,20 +21,33 @@ namespace Sql2Excel
                 return;
             }
 
-
-            var config = new ConfigLoader();
-            var parameters = config.GetExecutionParams();
-            parameters.DestinationPath = e.Args[0];
-            parameters.SqlFilePath = e.Args[1];
-
-            if (e.Args.Length == 3)
+            try
             {
-                parameters.XlsFilename = e.Args[2];
+                var config = new ConfigLoader();
+                var parameters = config.GetExecutionParams();
+                parameters.DestinationPath = e.Args[0];
+                parameters.SqlFilePath = e.Args[1];
+
+                if (e.Args.Length == 3)
+                {
+                    parameters.XlsFilename = e.Args[2];
+                }
+
+                var main = new MainWindow(parameters, e);
+                main.Show();
             }
+            catch (Exception ex)
+            {
+                NotificationUtil.ShowError(ex.Message);
+                Shutdown();
+            }
+        }
 
-            var main = new MainWindow(parameters, e);
-
-            main.Show();
+        private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            NotificationUtil.ShowError($"Erro inesperado: {e.Exception.Message}");
+            e.Handled = true;
+            Shutdown();
         }
     }
 
